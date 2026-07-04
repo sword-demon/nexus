@@ -1,0 +1,16 @@
+# Dependencies
+nexus-agent/node_modules/
+react-vite/node_modules/
+.pnpm-store/
+
+# Build artifacts
+nexus-agent/dist/
+nexus-agent/out/
+react-vite/dist/
+
+# Logs
+*.log
+nexus-agent/*.log
+
+# OS
+.DS_Store

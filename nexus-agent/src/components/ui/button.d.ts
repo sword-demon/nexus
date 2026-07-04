@@ -1,0 +1,1 @@
+../../renderer/components/ui/button.d.ts

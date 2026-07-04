@@ -1,0 +1,22 @@
+appId: com.nexus.agent
+productName: Nexus Agent
+directories:
+  output: out
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch:
+        - arm64
+dmg:
+  artifactName: '${productName}-${version}.${ext}'
+files:
+  - dist/**/*
+  - dist-main/**/*
+  - package.json
+asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/**/*
+  - node_modules/node-pty/**/*
+  - '**/*.node'
+  - '**/*.dylib'
