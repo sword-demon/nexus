@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { highlightCode } from '@/lib/syntax-highlight'
@@ -12,6 +12,11 @@ interface RenderMessage {
   content: string
   createdAt: number
   status?: 'done' | 'streaming' | 'pending' | 'error'
+  inputTokens?: number | null
+  outputTokens?: number | null
+  cacheCreationTokens?: number | null
+  cacheReadTokens?: number | null
+  costUsd?: number | null
 }
 
 interface MessageBubbleProps {
@@ -25,6 +30,8 @@ interface MessageBubbleProps {
 
 function MessageBubble({ message, index, className, style, ...qoderProps }: MessageBubbleProps) {
   const isUser = message.role === 'user'
+  const [costOpen, setCostOpen] = useState(false)
+  const hasUsage = typeof message.costUsd === 'number' && message.costUsd !== null
 
   return (
     <motion.div
@@ -77,7 +84,34 @@ function MessageBubble({ message, index, className, style, ...qoderProps }: Mess
               streaming
             </span>
           )}
+          {!isUser && hasUsage && (
+            <button
+              type="button"
+              onClick={() => setCostOpen((open) => !open)}
+              className="text-[11px] text-[var(--seed-muted)] font-mono hover:text-[var(--seed-fg)] transition-colors"
+              data-component="MessageCostToggle"
+              data-od-id={`message-cost-${message.id}`}
+            >
+              {costOpen ? '▾' : '▸'} ${(message.costUsd ?? 0).toFixed(4)}
+            </button>
+          )}
         </div>
+        {!isUser && hasUsage && costOpen && (
+          <div
+            className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] font-mono text-[var(--seed-muted)]"
+            data-component="MessageCostDetail"
+            data-od-id={`message-cost-detail-${message.id}`}
+          >
+            <span>input</span>
+            <span className="text-right text-[var(--seed-fg)]">{message.inputTokens ?? 0}</span>
+            <span>output</span>
+            <span className="text-right text-[var(--seed-fg)]">{message.outputTokens ?? 0}</span>
+            <span>cache write</span>
+            <span className="text-right text-[var(--seed-fg)]">{message.cacheCreationTokens ?? 0}</span>
+            <span>cache read</span>
+            <span className="text-right text-[var(--seed-fg)]">{message.cacheReadTokens ?? 0}</span>
+          </div>
+        )}
       </div>
     </motion.div>
   )

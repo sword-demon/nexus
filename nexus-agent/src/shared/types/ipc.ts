@@ -65,6 +65,12 @@ export interface MessageDto {
   content: string
   toolUseId: string | null
   createdAt: number
+  /** v1.0 cost tracking — null on legacy v0.1 rows and on user/system turns. */
+  inputTokens: number | null
+  outputTokens: number | null
+  cacheCreationTokens: number | null
+  cacheReadTokens: number | null
+  costUsd: number | null
 }
 
 export interface SessionDto {

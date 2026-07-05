@@ -13,6 +13,7 @@ import { runTurn } from './agent/loop'
 import { dispatchToolCall, toToolResultEvent } from './agent/dispatcher'
 import { createAgentSignal, type AgentSignal } from './agent/signals'
 import { mapAgentError } from './agent/stream'
+import { computeCost } from './agent/cost'
 import { registerPtyIpcHandlers } from './pty/ipc'
 import { notify } from './notifications'
 import { updateTrayStatus } from './tray'
@@ -352,7 +353,20 @@ async function runStreamingTurn(
       },
     })
     if (assistantText.trim()) {
-      appendMessage({ sessionId: session.id, role: 'assistant', content: assistantText })
+      const usage = result.usage
+      const costUsd = computeCost(result.model, usage)
+      appendMessage({
+        sessionId: session.id,
+        role: 'assistant',
+        content: assistantText,
+        cost: {
+          inputTokens: usage.inputTokens,
+          outputTokens: usage.outputTokens,
+          cacheCreationTokens: usage.cacheCreationInputTokens,
+          cacheReadTokens: usage.cacheReadInputTokens,
+          costUsd,
+        },
+      })
     }
     await logger.logApiCall({
       turnId,

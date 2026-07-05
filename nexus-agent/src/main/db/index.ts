@@ -3,6 +3,11 @@ import { existsSync, mkdirSync, renameSync } from 'node:fs'
 import path from 'node:path'
 import { logger } from '../logger'
 import { INITIAL_SCHEMA_SQL } from './migrations/001_init.sql'
+import {
+  MIGRATION_VERSION as COST_MIGRATION_VERSION,
+  MIGRATION_NAME as COST_MIGRATION_NAME,
+  applyCostTrackingMigration,
+} from './migrations/002_cost_tracking.sql'
 import { getDatabasePath } from './path'
 
 let database: Database.Database | null = null
@@ -52,6 +57,12 @@ function initialize(db: Database.Database): Database.Database {
      VALUES (1, '001_init', ?)`,
   ).run(Date.now())
   db.pragma('user_version = 1')
+  applyCostTrackingMigration({ db })
+  db.prepare(
+    `INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+     VALUES (?, ?, ?)`,
+  ).run(COST_MIGRATION_VERSION, COST_MIGRATION_NAME, Date.now())
+  db.pragma(`user_version = ${COST_MIGRATION_VERSION}`)
   return db
 }
 

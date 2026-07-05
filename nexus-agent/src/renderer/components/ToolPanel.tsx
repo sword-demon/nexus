@@ -10,6 +10,11 @@ import PtyTerminal from './Terminal/PtyTerminal'
 import SkillsSection from './ToolPanel/SkillsSection'
 import { toToolItem, type Tool } from './ToolPanel/toolMapping'
 
+function formatUsd(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return '$0.000'
+  return `$${value.toFixed(3)}`
+}
+
 interface ToolItemProps {
   tool: Tool
   index: number
@@ -169,6 +174,7 @@ export default function ToolPanel({ isOpen, onToggle }: ToolPanelProps) {
   const currentProjectId = useAppStore((s) => s.currentProjectId)
   const skills = useAppStore(selectValidSkills)
   const loadErrors = useAppStore(selectLoadErrors)
+  const sessionCostUsd = useAppStore((s) => s.sessionCostUsd)
   const currentProject = projects.find((project) => project.id === currentProjectId)
   const tools = pendingTools.map((tool) => toToolItem(tool, currentProject?.path ?? ''))
 
@@ -200,6 +206,20 @@ export default function ToolPanel({ isOpen, onToggle }: ToolPanelProps) {
             <Button variant="ghost" size="icon-sm" onClick={onToggle} data-qoder-id="qel-button-34ddd4ee" data-qoder-source="{&quot;qoderId&quot;:&quot;qel-button-34ddd4ee&quot;,&quot;filePath&quot;:&quot;react-vite/src/components/ToolPanel.jsx&quot;,&quot;componentName&quot;:&quot;ToolPanel&quot;,&quot;elementRole&quot;:&quot;button&quot;,&quot;loc&quot;:{&quot;line&quot;:204,&quot;column&quot;:13}}">
               <PanelRightClose size={14}  data-qoder-id="qel-panelrightclose-692c9e15" data-qoder-source="{&quot;qoderId&quot;:&quot;qel-panelrightclose-692c9e15&quot;,&quot;filePath&quot;:&quot;react-vite/src/components/ToolPanel.jsx&quot;,&quot;componentName&quot;:&quot;ToolPanel&quot;,&quot;elementRole&quot;:&quot;panelrightclose&quot;,&quot;loc&quot;:{&quot;line&quot;:205,&quot;column&quot;:15}}"/>
             </Button>
+          </div>
+
+          {/* Session cost (v1.0) — pinned to top of ToolPanel, always visible */}
+          <div
+            className="flex items-center justify-between px-4 py-2 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]"
+            data-component="SessionCost"
+            data-od-id="session-cost"
+          >
+            <span className="text-[10px] uppercase tracking-[0.06em] text-[var(--seed-muted)]">
+              Session · USD
+            </span>
+            <span className="text-xs font-mono text-[var(--seed-fg)]" data-testid="session-cost-value">
+              {formatUsd(sessionCostUsd)}
+            </span>
           </div>
 
           {/* Progress Bar */}
